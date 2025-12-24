@@ -6,31 +6,56 @@ Verwendet PyQt5 für die GUI und Plotly für interaktive Diagramme
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QPushButton, QLabel, QComboBox, 
-                             QLineEdit, QFileDialog, QMessageBox, QGroupBox)
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import Qt
+                             QLineEdit, QFileDialog, QMessageBox, QGroupBox,
+                             QSizeGrip, QStatusBar)
+from PyQt5.QtCore import Qt, QPoint
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-
+import webbrowser
+import tempfile
+import os
+import base64
+from title_bar import CustomTitleBar
+from ressources import ARROW_ICON_BASE64
 
 class DiagrammTool(QMainWindow):
     def __init__(self):
         super().__init__()
+        # Entfernt die Standard-Fensterleiste
+        self.setWindowFlag(Qt.FramelessWindowHint)
         self.df = None
         self.init_ui()
     
     def init_ui(self):
         """Initialisiert die Benutzeroberfläche"""
         self.setWindowTitle("Diagramm-Tool")
-        self.setGeometry(100, 100, 1200, 800)
+        self.setGeometry(100, 100, 800, 350) # Höhe angepasst für Titelleiste
         
         # Hauptwidget und Layout
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
-        main_layout = QVBoxLayout()
-        main_widget.setLayout(main_layout)
         
+        # Globales Layout mit Titelleiste oben
+        global_layout = QVBoxLayout(main_widget)
+        global_layout.setContentsMargins(0,0,0,0)
+        global_layout.setSpacing(0)
+
+        self.title_bar = CustomTitleBar(self)
+        global_layout.addWidget(self.title_bar)
+
+        # Inhalts-Container für den Rest der App
+        content_widget = QWidget()
+        main_layout = QVBoxLayout(content_widget)
+        main_layout.setContentsMargins(10,10,10,10) # Innenabstand für Inhalt
+        global_layout.addWidget(content_widget, 1) # Stretch-Faktor hinzugefügt
+
+        # Statusleiste für den SizeGrip
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+        size_grip = QSizeGrip(self.status_bar)
+        self.status_bar.addPermanentWidget(size_grip)
+
         # Datei-Laden Bereich
         file_group = QGroupBox("Daten laden")
         file_layout = QHBoxLayout()
@@ -101,9 +126,8 @@ class DiagrammTool(QMainWindow):
         # Button zum Erstellen
         button_layout = QHBoxLayout()
         self.create_btn = QPushButton("Diagramm erstellen")
-        self.create_btn.clicked.connect(self.create_diagram)
         self.create_btn.setEnabled(False)
-        self.create_btn.setMinimumHeight(40)
+        self.create_btn.clicked.connect(self.create_diagram)
         button_layout.addStretch()
         button_layout.addWidget(self.create_btn)
         button_layout.addStretch()
@@ -112,29 +136,15 @@ class DiagrammTool(QMainWindow):
         config_group.setLayout(config_layout)
         main_layout.addWidget(config_group)
         
-        # Diagramm-Anzeige Bereich
-        diagram_group = QGroupBox("Diagramm")
-        diagram_layout = QVBoxLayout()
+        # Der Bereich für die Diagramm-Anzeige wird entfernt
         
-        self.web_view = QWebEngineView()
-        diagram_layout.addWidget(self.web_view)
-        
-        # Export-Button
-        export_layout = QHBoxLayout()
         self.export_btn = QPushButton("Als HTML exportieren")
-        self.export_btn.clicked.connect(self.export_diagram)
         self.export_btn.setEnabled(False)
-        export_layout.addStretch()
-        export_layout.addWidget(self.export_btn)
-        diagram_layout.addLayout(export_layout)
+        self.export_btn.clicked.connect(self.export_diagram)
+        main_layout.addWidget(self.export_btn)
         
-        diagram_group.setLayout(diagram_layout)
-        main_layout.addWidget(diagram_group)
-        
-        # Verhältnis der Bereiche
-        main_layout.setStretch(0, 0)  # Datei-Bereich
-        main_layout.setStretch(1, 0)  # Konfiguration
-        main_layout.setStretch(2, 1)  # Diagramm (größter Bereich)
+        # Stretch-Faktor ist nicht mehr nötig
+        main_layout.addStretch(1)
     
     def load_file(self):
         """Lädt eine Datei (CSV oder Excel) und aktualisiert die Spaltenauswahl"""
@@ -223,10 +233,15 @@ class DiagrammTool(QMainWindow):
                 height=600
             )
             
-            # Als HTML generieren und anzeigen
             self.current_fig = fig
-            html = fig.to_html(include_plotlyjs='inline')
-            self.web_view.setHtml(html)
+            
+            # Temporäre HTML-Datei erstellen und im Browser öffnen
+            with tempfile.NamedTemporaryFile('w', delete=False, suffix='.html', encoding='utf-8') as f:
+                fig.write_html(f)
+                # URL für den Browser erstellen (funktioniert auf allen Systemen)
+                file_url = 'file:///' + os.path.abspath(f.name).replace('\\', '/')
+
+            webbrowser.open(file_url)
             
             # Export-Button aktivieren
             self.export_btn.setEnabled(True)
@@ -268,9 +283,30 @@ class DiagrammTool(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
+
+    # Base64-kodierter Pfeil für das Dropdown-Menü
+    arrow_png_data = base64.b64decode(ARROW_ICON_BASE64)
+
+    with open("arrow.png", "wb") as f:
+        f.write(arrow_png_data)
+
+    # Stylesheet aus externer Datei laden
+    try:
+        with open("styles.qss", "r") as f:
+            app.setStyleSheet(f.read())
+    except FileNotFoundError:
+        print("Stylesheet-Datei 'styles.qss' nicht gefunden.")
+    
     window = DiagrammTool()
     window.show()
-    sys.exit(app.exec_())
+    
+    exit_code = app.exec_()
+    
+    # Temporäre Pfeil-Datei löschen
+    if os.path.exists("arrow.png"):
+        os.remove("arrow.png")
+        
+    sys.exit(exit_code)
 
 
 if __name__ == '__main__':

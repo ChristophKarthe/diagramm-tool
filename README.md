@@ -4,17 +4,17 @@ Eine Desktop-Anwendung zum Erstellen interaktiver Diagramme aus Tabellendaten mi
 
 ## Features
 
-- 📊 **Interaktive Diagramme** mit Plotly
-- 📁 **Unterstützt CSV und Excel** (.csv, .xlsx, .xls)
-- 🎨 **Verschiedene Diagrammtypen**:
+- **Interaktive Diagramme** mit Plotly
+- **Unterstützt CSV und Excel** (.csv, .xlsx, .xls)
+- **Verschiedene Diagrammtypen**:
   - Liniendiagramm
   - Balkendiagramm
   - Streudiagramm
   - Flächendiagramm
   - Horizontale Balkendiagramme
-- ✏️ **Freie Achsenwahl** und Beschriftung
-- 💾 **HTML-Export** für Diagramme
-- 🖱️ **Moderne GUI** mit PyQt5
+- **Freie Achsenwahl** und Beschriftung
+- **HTML-Export** für Diagramme
+- **Moderne GUI** mit PyQt5
 
 ## Installation
 
@@ -67,6 +67,9 @@ pip install -r requirements.txt
 python main.py
 ```
 
+### mit .exe
+- oder einfach die .exe in /dist herunterladen und ausführen
+
 ### Arbeitsablauf
 
 1. **Datei laden**: Klicken Sie auf "Datei öffnen" und wählen Sie eine CSV- oder Excel-Datei
@@ -81,42 +84,6 @@ python main.py
 
 Eine Beispiel-CSV-Datei (`beispiel_daten.csv`) ist im Repository enthalten.
 
-## Beispiel-Screenshots
-
-### Hauptfenster
-```
-┌─────────────────────────────────────────────────────┐
-│ Diagramm-Tool                                       │
-├─────────────────────────────────────────────────────┤
-│ [Daten laden]                                       │
-│ Keine Datei geladen              [Datei öffnen]     │
-├─────────────────────────────────────────────────────┤
-│ [Diagramm-Konfiguration]                            │
-│ X-Achse: [Dropdown] Beschriftung: [___________]     │
-│ Y-Achse: [Dropdown] Beschriftung: [___________]     │
-│ Diagrammtyp: [Dropdown]                             │
-│ Titel: [___________________________________]        │
-│                [Diagramm erstellen]                 │
-├─────────────────────────────────────────────────────┤
-│ [Diagramm]                                          │
-│                                                     │
-│     (Interaktives Plotly-Diagramm)                  │
-│                                                     │
-│                        [Als HTML exportieren]       │
-└─────────────────────────────────────────────────────┘
-```
-
-## Projektstruktur
-
-```
-diagramm-tool/
-├── main.py                 # Hauptanwendung
-├── requirements.txt        # Python-Abhängigkeiten
-├── beispiel_daten.csv      # Testdaten
-├── README.md              # Diese Datei
-└── LICENSE                # Lizenz
-```
-
 ## Technologie-Stack
 
 - **PyQt5**: GUI-Framework für die Desktop-Anwendung
@@ -127,30 +94,7 @@ diagramm-tool/
 
 ## Erweiterungsmöglichkeiten
 
-- 📈 Mehr Diagrammtypen (3D-Plots, Heatmaps, Box-Plots)
-- 🎨 Farbschema-Anpassung
-- 📊 Mehrere Y-Achsen gleichzeitig
-- 💾 Export als PNG/PDF/SVG
-- 🔧 Erweiterte Plotly-Optionen (Gitternetz, Legenden, etc.)
-- 📁 Mehrere Dateien gleichzeitig laden
-- 🔄 Datenfilterung und -transformation
-
-## Fehlerbehebung
-
-### "ModuleNotFoundError: No module named 'PyQt5'"
-
-Stellen Sie sicher, dass die virtuelle Umgebung aktiviert ist und alle Abhängigkeiten installiert wurden:
-```bash
-pip install -r requirements.txt
-```
-
-### Anwendung startet nicht
-
-Überprüfen Sie Ihre Python-Version:
-```bash
-python --version
-```
-Mindestens Python 3.8 ist erforderlich.
+- mehrere Graphen in ein Diagramm
 
 ## Lizenz
 
@@ -159,7 +103,3 @@ Siehe [LICENSE](LICENSE) Datei.
 ## Autor
 
 Christoph Karthe
-
-## Support
-
-Bei Fragen oder Problemen öffnen Sie bitte ein Issue auf GitHub.
